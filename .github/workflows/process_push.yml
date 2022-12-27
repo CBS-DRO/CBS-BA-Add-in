@@ -1,0 +1,29 @@
+# Contact @danguetta with any questions
+
+name: Extract VBA
+on:
+  push:
+    branches:
+      # We only want to activate this when a new version is pushed, NOT when
+      # a new release is created. We do this by adding this branches filter,
+      # as per
+      #   https://stackoverflow.com/questions/59906471/why-does-a-release-event-generate-a-push-event-as-well
+      - '**'
+jobs:
+  ProcessPush:
+    runs-on: ubuntu-latest
+    steps:
+      - run: echo "Starting"
+      - name: Check out repository code
+        uses: actions/checkout@v2
+      - run: pip install oletools
+      - run: pip install pypdf2
+      - run: python ./.github/workflows/process_push.py
+      - run: echo "VBA Extracted. Now creating a new commit"
+      - name: Commit report
+        run: |
+          git config --global user.name 'VBA Robot'
+          git config --global user.email 'VBA Robot'
+          git add .
+          git commit -am "VBA - ${{ github.event.head_commit.message }}" --allow-empty
+          git push

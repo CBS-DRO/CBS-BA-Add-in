@@ -1,0 +1,24 @@
+private sub cbsbabuttons(control as iribboncontrol)
+
+    select case control.id
+
+        case is = "cbsbaversionnum_btn"
+            call util.versionnum
+            
+        case is = "cbsbashowmontecarlosdialog_btn"
+            call montecarlo.showmontecarlodialog
+            
+        case is = "cbsbaclearhistograms_btn"
+            call util.clearhistograms
+            
+        case is = "cbsbaautoformulabox_btn"
+            call util.autoformulabox
+            
+        case is = "cbsbafixlinks_btn"
+            call util.checkandfixlinks_activeworkbook
+            
+        case else
+        
+    end select
+
+end sub

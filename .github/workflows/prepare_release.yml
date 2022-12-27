@@ -1,0 +1,35 @@
+# Contact @danguetta with any questions
+
+name: Prepare release
+on:
+  release:
+    types:
+      - created
+
+jobs:
+  PushRelease:
+    runs-on: ubuntu-latest
+    steps:
+      - run: echo "Starting"
+      - name: Check out repository code
+        uses: actions/checkout@v2
+      - name: Upload addin file to the GitHub release page
+        if: github.event_name == 'release'
+        uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          upload_url: ${{ github.event.release.upload_url }}
+          asset_path: "${{ github.workspace }}/CBS BA Multiplatform add-in.xlam"
+          asset_name: CBS BA Multiplatform add-in.xlam
+          asset_content_type: application/vnd.ms-excel.addin.macroEnabled.12
+      - name: Upload addin manual to the GitHub release page
+        if: github.event_name == 'release'
+        uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          upload_url: ${{ github.event.release.upload_url }}
+          asset_path: "${{ github.workspace }}/User manual/BA Add-In User Manual.pdf"
+          asset_name: "BA Add-In User Manual.pdf"
+          asset_content_type: application/pdf

@@ -1,0 +1,504 @@
+option explicit
+
+' the github action depends on the exact format of this line; do not change any
+' part of this line other than the version number without first reading the
+' github action file
+public const constversionnumber as string = "0.0.31"
+
+' this constant is the absolute tolerance when making comparisons in mergesort
+public const constmergesort_tolerance as double = 0.0000000001
+
+public sub quicksort(varray as variant, vindices as variant, inlow as long, inhi as long)
+  dim pivot   as long
+  dim tmpswap as long
+  dim tmplow  as long
+  dim tmphi   as long
+
+  tmplow = inlow
+  tmphi = inhi
+
+  pivot = vindices((inlow + inhi) \ 2)
+
+  while (tmplow <= tmphi)
+     while (varray(vindices(tmplow)) < varray(pivot) and tmplow < inhi)
+        tmplow = tmplow + 1
+     wend
+
+     while (varray(pivot) < varray(vindices(tmphi)) and tmphi > inlow)
+        tmphi = tmphi - 1
+     wend
+
+     if (tmplow <= tmphi) then
+        tmpswap = vindices(tmplow)
+        vindices(tmplow) = vindices(tmphi)
+        vindices(tmphi) = tmpswap
+        tmplow = tmplow + 1
+        tmphi = tmphi - 1
+     end if
+  wend
+
+  if (inlow < tmphi) then quicksort varray, vindices, inlow, tmphi
+  if (tmplow < inhi) then quicksort varray, vindices, tmplow, inhi
+end sub
+
+
+public sub mergesort(varray as variant, vindices() as long)
+    dim inlow as long, inhigh as long
+    dim vindices_temp() as long
+    
+    inlow = lbound(vindices)
+    inhigh = ubound(vindices)
+    
+    redim vindices_temp(inlow to inhigh)
+    
+    mergesort_split varray, vindices, vindices_temp, inlow, inhigh
+end sub
+
+
+private sub mergesort_split(varray as variant, vindices() as long, vindices_temp() as long, inlow as long, inhigh as long)
+    dim inmed as long
+    
+    if inlow < inhigh then
+        inmed = int((inhigh + inlow) / 2)
+        
+        mergesort_split varray, vindices, vindices_temp, inlow, inmed
+        mergesort_split varray, vindices, vindices_temp, inmed + 1, inhigh
+        
+        mergesort_merge varray, vindices, vindices_temp, inlow, inmed, inhigh
+    end if
+end sub
+
+private sub mergesort_merge(varray as variant, vindices() as long, vindices_temp() as long, inlow as long, inmed as long, inhigh as long)
+    dim inleft as long, inright as long, inmerged as long
+    
+    inleft = inlow
+    inright = inmed + 1
+    inmerged = inlow
+    
+    ' merge the array back
+    while inleft <= inmed and inright <= inhigh
+        if varray(vindices(inleft)) <= varray(vindices(inright)) + constmergesort_tolerance then
+            vindices_temp(inmerged) = vindices(inleft)
+            inleft = inleft + 1
+        else
+            vindices_temp(inmerged) = vindices(inright)
+            inright = inright + 1
+        end if
+        inmerged = inmerged + 1
+    wend
+    
+    ' copy the remaining elements of the left array, if there are any
+    while inleft <= inmed
+        vindices_temp(inmerged) = vindices(inleft)
+        inleft = inleft + 1
+        inmerged = inmerged + 1
+    wend
+    ' copy the remaining elements of the right array, if there are any
+    while inright <= inhigh
+        vindices_temp(inmerged) = vindices(inright)
+        inright = inright + 1
+        inmerged = inmerged + 1
+    wend
+    ' copy from the temp to the final array
+    for inmerged = inlow to inhigh
+        vindices(inmerged) = vindices_temp(inmerged)
+    next
+end sub
+
+
+public function getheaderrowsandresizerange(rng as range) as range
+    'returns header from range, and points the range to data without header.
+    dim numheaderrows as long, headerrows as range
+    numheaderrows = rng.listheaderrows
+    
+    if numheaderrows = 0 then
+        'if no header, do nothing.
+        set headerrows = nothing
+    else
+        set headerrows = rng.resize(numheaderrows)
+        set rng = rng.resize(rng.rows.count - numheaderrows)
+        set rng = rng.offset(numheaderrows)
+    end if
+    
+    set getheaderrowsandresizerange = headerrows
+    
+end function
+
+
+public sub functiondescription(funcname as string, funcdesc as string, funccat as variant, argdesc() as string)
+
+    '------------------------------------------------------------------------
+    'this sub can add a description to a selected user-defined function,
+    '(udf) as well as to its parameters, by using the macrooptions method.
+    'after running successfully the macro the udf function no longer appears
+    'to the udf category of functions, but into the desired category.
+    
+    'by christos samaras
+    'date: 23/07/2013
+    'xristos.samaras@gmail.com
+    'https://myengineeringworld.net/////
+    '------------------------------------------------------------------------
+    
+
+    'using the macrooptions method add the function description (and its arguments).
+    if len(funcdesc) > 255 then
+        msgbox funcname & " cannot be registered. description length " & len(funcdesc) & " exceeds 255 characters"
+        exit sub
+    end if
+    application.macrooptions _
+        macro:=funcname, _
+        description:=funcdesc, _
+        category:=funccat, _
+        argumentdescriptions:=argdesc
+    
+    'available built-in categories in excel.
+    'this select case is somehow irrelevelant, but it was added for
+    'demonstration purposues.
+    select case funccat
+        case 1: funccat = "financial"
+        case 2: funccat = "date & time"
+        case 3: funccat = "math & trig"
+        case 4: funccat = "statistical"
+        case 5: funccat = "lookup & reference"
+        case 6: funccat = "database"
+        case 7: funccat = "text"
+        case 8: funccat = "logical"
+        case 9: funccat = "information"
+        case 10: funccat = "commands"
+        case 11: funccat = "customizing"
+        case 12: funccat = "macro control"
+        case 13: funccat = "dde/external"
+        case 14: funccat = "user defined default"
+        case 15: funccat = "engineering"
+        case else: funccat = funccat
+    end select
+
+    'inform the user about the process.
+    'msgbox funcname & " was successfully added to the " & funccat & " category!", vbinformation, "done"
+    
+end sub
+
+
+public function makeoned(a() as variant)
+
+dim b() as variant, n as long, j as long
+n = ubound(a)
+redim b(1 to n)
+
+for j = 1 to n
+    b(j) = a(j, 1)
+next j
+
+makeoned = b
+end function
+
+
+sub autoformulabox()
+    dim c as range
+    dim ismac as boolean
+    dim ola as string
+    if activeworkbook is nothing then
+        msgbox "cbs_ba add-in: there is no workbook currently active. please open a sheet and run this command again", vbexclamation
+        exit sub
+    end if
+#if mac then
+    ismac = true
+#else
+    ismac = false
+#end if
+'
+' autoformulabox macro
+'
+' keyboard shortcut: ctrl+shift+f
+'
+'
+' autoformulabox macro
+' macro written 2/14/2002 by ola holmstrom
+'
+    selection.clearcomments
+    for each c in selection
+        c.select
+        ola = activecell.formula
+        if left(ola, 1) = "=" then
+            with selection
+                .addcomment
+                .comment.visible = true
+                .comment.text text:=ola$
+                .comment.shape.select true
+            end with
+            if not ismac then
+                with selection
+                    .autosize = true
+                end with
+                with selection.font
+                    .name = "arial"
+                    .fontstyle = "bold"
+                    .size = 10
+                    .strikethrough = false
+                    .superscript = false
+                    .subscript = false
+                    .outlinefont = false
+                    .shadow = false
+                    .underline = xlunderlinestylenone
+                    .colorindex = xlautomatic
+                end with
+            end if
+        else
+        end if
+    next
+    activecell.select
+    
+    activesheet.pagesetup.printgridlines = true
+    activesheet.pagesetup.printheadings = true
+end sub
+
+sub turnoffautorecalc()
+    application.calculation = xlcalculationmanual
+end sub
+
+sub turnonautorecalc()
+    application.calculation = xlcalculationautomatic
+end sub
+
+sub turnoffscreenupdate()
+    application.screenupdating = false
+end sub
+
+sub turnonscreenupdate()
+    application.screenupdating = true
+end sub
+
+sub calculateactiveworksheet_old()
+    dim wks as worksheet, origcalc as xlcalculation
+    origcalc = application.calculation
+    application.calculation = xlcalculationmanual
+    'for each wks in activeworkbook.worksheets
+    '    wks.calculate
+    'next
+    'set wks = nothing
+    activesheet.calculate
+    application.calculation = xlcalculationautomatic
+end sub
+
+sub calculateactiveworksheet()
+    application.calculate
+end sub
+
+sub updatestatusbar(str as string)
+    application.statusbar = str
+end sub
+
+sub recoveroldstatusbar()
+    application.statusbar = false
+end sub
+
+sub openmanual(path as string)
+    application.displayalerts = false
+    activeworkbook.followhyperlink path & "\ba add-in user's manual.pdf"
+    'application.displayalerts = true
+end sub
+
+sub opencatalog(path as string, suffix as string)
+    workbooks.open filename:=path & "\cbs_ba_catalog_" & suffix & ".xlsx"
+end sub
+
+sub openmcsimex(path as string)
+    workbooks.open filename:=path & "\montecarlo_catalog.xlsx"
+end sub
+
+
+public sub clearhistograms()
+    if activeworkbook is nothing then
+        msgbox "cbs_ba add-in: there is no workbook currently active. please open a sheet and run this command again", vbexclamation
+        exit sub
+    end if
+application.displayalerts = false
+dim wks as worksheet
+for each wks in activeworkbook.worksheets
+    if instr(wks.name, "ba_hist") = 1 then
+        wks.delete
+    end if
+next
+application.displayalerts = true
+
+end sub
+
+public sub versionnum()
+    msgbox "business analytics vba add-in version " & constversionnumber & vbnewline & _
+    "using solvertable 2016 from here: https://host.kelley.iu.edu/albrightbooks/free_downloads.htm" & vbnewline & vbnewline & _
+    "developed by: utkarsh patange, santiago balseiro, daniel guetta" & vbnewline & "contact: utkarsh.patange@columbia.edu", vbinformation
+end sub
+
+
+sub checkandfixlinks_activeworkbook()
+    
+    ' check the length of the worksheet name
+    if activeworkbook is nothing then
+        msgbox "cbs_ba add-in: there is no workbook currently active. please open a sheet and run this command again", vbexclamation
+        exit sub
+    end if
+    
+    checkandfixlinks activeworkbook
+    
+end sub
+
+
+sub checkandfixlinks(obook as workbook)
+'-------------------------------------------------------------------------
+' procedure : checkandfixlinks created by jan karel pieterse
+' company   : jkp application development services (c) 2008
+' author    : jan karel pieterse
+' created   : 2-6-2008
+' purpose   : checks for links to addin and fixes them
+'             if they are not pointing to proper location
+'-------------------------------------------------------------------------
+    dim vlink as variant
+    dim vlinks as variant
+    'get all links
+    vlinks = obook.linksources(xlexcellinks)
+    'check if we have any links, if not, exit
+    if isempty(vlinks) then exit sub
+    for each vlink in vlinks
+        'if vlink like "*" & thisworkbook.name then
+        if lcase(vlink) like "*cbs ba multiplatform add-in.xlam" then
+            'we've found a link to our add-in, redirect it to
+            'its current location. avoid prompts
+            application.displayalerts = false
+            obook.changelink vlink, thisworkbook.fullname, xllinktypeexcellinks
+            application.displayalerts = true
+        end if
+    next
+    on error goto 0
+end sub
+
+
+function checkoldaddinopen() as boolean
+    on error resume next
+    dim a as addin
+    
+    checkoldaddinopen = false
+    
+    for each a in application.addins2
+        'debug.print (a.name)
+        'debug.print (a.isopen)
+        'debug.print (a.installed)
+        
+        if lcase(a.name) like "cbs_ba*.xll" and a.isopen then
+            checkoldaddinopen = true
+        end if
+    next
+end function
+
+' --------------------------------------------------------------------
+' solver helper functions
+' --------------------------------------------------------------------
+public function checksolverinstalled()
+    dim installed as boolean
+    dim addin_obj as addin
+    installed = false
+    for each addin_obj in application.addins
+        if lcase(addin_obj.name) = "solver.xlam" and addin_obj.installed = true then
+            installed = true
+        end if
+    next addin_obj
+    
+    
+    if installed = false then
+        msgbox "solver add-in is not available. you can manually enable solver in 'file > options > add-ins > manage (excel add-ins) go'. try again after enabling solver add-in.", vbexclamation
+        if not activeworkbook is nothing then
+            application.dialogs(xldialogaddinmanager).show
+        end if
+    end if
+    checksolverinstalled = installed
+end function
+
+function rangeexists(r as string) as boolean
+    dim test as range
+    on error resume next
+    set test = activesheet.range(r)
+    rangeexists = err.number = 0
+end function
+
+
+' source: https://peltiertech.com/excel/solvervba.html#solver2
+function checksolverintl() as boolean
+  '' adjusted for application.run() to avoid reference problems with solver
+  '' adjusted for international versions of excel
+  '' peltier technical services, inc., copyright © 2008. all rights reserved.
+  '' returns true if solver can be used, false if not.
+
+  dim bsolverinstalled as boolean
+  dim baddinfound as boolean
+  dim iaddin as long
+  const saddin as string = "solver.xlam"
+
+  '' assume true unless otherwise
+  checksolverintl = true
+
+  on error resume next
+  ' check whether solver is installed
+  bsolverinstalled = isinstalled(saddin)
+  err.clear
+
+  if bsolverinstalled then
+    ' uninstall temporarily
+    baddinfound = addininstall(saddin, false)
+    ' check whether solver is installed (should be false)
+    bsolverinstalled = isinstalled(saddin)
+  end if
+
+  if not bsolverinstalled then
+    ' (re)install solver
+    baddinfound = addininstall(saddin, true)
+    ' check whether solver is installed (should be true)
+    bsolverinstalled = isinstalled(saddin)
+  end if
+
+  if not bsolverinstalled then
+    msgbox "solver add-in is not available. you can manually enable solver in 'file > options > add-ins > manage (excel add-ins) go'. try again after enabling solver add-in.", vbexclamation
+    checksolverintl = false
+  end if
+
+  if checksolverintl then
+    ' initialize solver
+    application.run saddin & "!solver.solver2.auto_open"
+  end if
+
+  on error goto 0
+
+end function
+
+function isinstalled(saddinfilename as string) as boolean
+  dim iaddin as long
+  
+  isinstalled = false
+  
+  for iaddin = 1 to application.addins.count
+    with application.addins(iaddin)
+      if lcase$(.name) = lcase$(saddinfilename) then
+        if .installed then
+          isinstalled = true
+        end if
+        exit for
+      end if
+    end with
+  next
+  
+end function
+
+function addininstall(saddinfilename as string, binstall as boolean) as boolean
+  dim iaddin as long
+  
+  for iaddin = 1 to application.addins.count
+    with application.addins(iaddin)
+      if lcase$(.name) = lcase$(saddinfilename) then
+        if .installed <> binstall then
+          .installed = binstall
+        end if
+        addininstall = true ' true = add-in is listed
+        exit for
+      end if
+    end with
+  next
+  
+end function
