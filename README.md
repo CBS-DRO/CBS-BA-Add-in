@@ -1,12 +1,4 @@
 # CBS VBA Business Analytics add-in
-## ERROR REPORT
-**Some errors were found while processing your latest push. Please fix them before proceeding as follows**
-  - Pull the latest commit (made by the VBA robot) from github
-  - Make your changes
-  - Push back to github
-
-The specific errors I found were as follows:
-  - The user manual PDF file does not seem to have been generated the current user manual LaTeX file. Please recompile the latest LaTeX file, so that it correctly reflects the PDF.
 ## Version: 0.0.31
 <!-- DO ***NOT*** EDIT ANYTHING ABOVE THIS LINE, INCLUDING THIS COMMENT -->
 
