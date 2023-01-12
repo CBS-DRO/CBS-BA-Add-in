@@ -3,10 +3,59 @@ option explicit
 ' the github action depends on the exact format of this line; do not change any
 ' part of this line other than the version number without first reading the
 ' github action file
-public const constversionnumber as string = "0.0.31"
+public const constversionnumber as string = "0.0.32"
 
 ' this constant is the absolute tolerance when making comparisons in mergesort
 public const constmergesort_tolerance as double = 0.0000000001
+
+public function largetranspose(varray as variant) as variant
+    dim vresult as variant
+    dim l1 as long, u1 as long, l2 as long, u2 as long, i1 as long, i2 as long
+    
+    l1 = lbound(varray, 1)
+    u1 = ubound(varray, 1)
+    l2 = lbound(varray, 2)
+    u2 = ubound(varray, 2)
+    
+    redim vresult(l2 to u2, l1 to u1)
+    
+    for i1 = l1 to u1
+        for i2 = l2 to u2
+            vresult(i2, i1) = varray(i1, i2)
+        next
+    next
+    
+    largetranspose = vresult
+end function
+
+function largemmult(a as variant, b as variant) as variant
+    'assumes that a,b are 1-based variant arrays
+
+    if lbound(a, 1) <> 1 or lbound(a, 2) <> 1 or lbound(b, 1) <> 1 or lbound(b, 2) <> 1 then
+        err.raise number:=vbobjecterror + 513, description:="largemmult: arrays need to be 1-based!"
+    end if
+    
+    dim m as long, n as long, p as long, i as long, j as long, k as long
+    
+    dim c as variant
+
+    m = ubound(a, 1)
+    p = ubound(a, 2)
+    if ubound(b, 1) <> p then
+        err.raise number:=vbobjecterror + 513, description:="largemmult: matrices have wrong dimensions!"
+    end if
+    n = ubound(b, 2)
+
+    redim c(1 to m, 1 to n)
+    for i = 1 to m
+        for j = 1 to n
+            for k = 1 to p
+                c(i, j) = c(i, j) + a(i, k) * b(k, j)
+            next k
+        next j
+    next i
+    largemmult = c
+end function
 
 public sub quicksort(varray as variant, vindices as variant, inlow as long, inhi as long)
   dim pivot   as long

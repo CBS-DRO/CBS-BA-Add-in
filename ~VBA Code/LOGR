@@ -552,6 +552,459 @@ unexpected_error_linr:
     linearregtrain = "fatal error " & err.number & ":" & err.description
 end function
  
+public function twoslsregtrain(known_y as range, optional exog_x as range = nothing, optional endog_x as range = nothing, _
+                                optional instruments as range = nothing, optional constant as boolean = true, _
+                                    optional not_implemented2 as long = 0, optional exog_col_select as range = nothing, _
+                                    optional not_implemented3 as range = nothing, optional not_implemented4 as boolean)
+' original signature: todo_dg
+'runs a two-stage-least-squares regression. the first stage is run using linest, and
+'the second by matrix inversion
+'
+'input:
+'   known_y (required): a range containing y. must be a single column.
+'                    top row(s) may include header(s). only the first header row will be used when displaying output.
+'                    headers must be non-numeric or formatted differently from the data (see listheaderrows property for
+'                    more on how excel identifies header rows.)
+'   exog_x (optional): a range containing exogenous x. all entries must be numeric. top row(s) may include header(s).
+'                    only the first header row will be used when displaying output. number of rows not counting header(s)
+'                    must match those of known_y.
+'   endog_x (required): a range containing endogenous x. all entries must be numeric. top row(s) may include header(s).
+'                    only the first header row will be used when displaying output. number of rows not counting header(s)
+'                    must match those of known_y.
+'   instruments (required): a range containing instruments. all entries must be numeric. top row(s) may include header(s).
+'                    only the first header row will be used when displaying output. number of rows not counting header(s)
+'                    must match those of known_y.
+'   constant: boolean indicating whether to include constant or not. assumed true if omitted.
+'   na_action: included for backward compatibility. value not used.
+'   exog_col_select: a range containing 0/1. must be a single row. number of columns must match those of exog_x. at least one
+'            entry must be 1. if jth entry is 0, jth column is ignored from the exog_x matrix. if omitted, all entries
+'            are assumed to be 1.
+'   row_weight: included for backward compatibility. value not used.
+'   show_first_stage: included for backward compatibility. value not used. first stage will not be shown
+'output:
+'   output is a matrix having 6 rows. number of columns depends on input. there is one column for each exog_x and endog_x
+'   variable included in the regression, one column for constant, and one more column for row labels.
+'   row 1: used for column labels. if known_y includes a header, the first entry contains that header followed by
+'       the size of the output matrix in brackets. otherwise, the first entry has the name of the function (twoslsregtrain),
+'       followed by the size of the output matrix in brackets. the second entry says "constant". next are entries
+'       corresponding to columns included from known_x in order. if known_x contains a header, it is used as column labels here.
+'       otherwise, the column labels are exog_var1, exog_var2, ..., endog_var1, endog_var2, and so on.
+'   row 2: first entry says "coefficients". later entries are coefficients
+'   row 3: first entry says "p-value". later entries are p-values
+'   row 4: first entry says "std error". later entries are std errors
+'   row 5: first entry says "number valid obs". next entry is the number of rows in known_x.
+'   row 6: first entry says "total obs". next entry is the number of rows in known_x.
+''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+on error goto unexpected_error_twoslstrain
+    
+    ' define variables
+    ' ----------------
+    
+    dim include_constant as long
+    
+    ' header input ranges
+    dim exog_x_header_in as range
+    dim endog_x_header_in as range
+    dim instrument_header_in as range
+    dim y_header_in as range
+    
+    ' header arrays/strings
+    dim exog_x_header() as string
+    dim endog_x_header() as string
+    dim y_header as string
+    
+    ' selected exogenous columns
+    dim exog_col_select_flags() as variant
+    
+    ' number of variables
+    dim exog_n_vars as long
+    dim endog_n_vars as long
+    dim instruments_n_vars as long
+    
+    ' number of data points
+    dim n as long
+    
+    'count variables
+    dim i as long, j as long, jj as long
+    
+    ' output variable
+    dim out() as variant
+    
+    ' deal with exog_col_select and the number of exogenous vars
+    ' ----------------------------------------------------------
+    
+    if exog_x is nothing then
+        exog_n_vars = 0
+    else
+        redim exog_col_select_flags(1 to exog_x.columns.count)
+        
+        if exog_col_select is nothing then
+            for j = 1 to exog_x.columns.count
+                exog_col_select_flags(j) = 1
+            next j
+            exog_n_vars = exog_x.columns.count
+        else
+            if exog_col_select.columns.count <> exog_x.columns.count then
+                twoslsregtrain = "number of entries in col_select must equal the total columns in x"
+                exit function
+            end if
+            if exog_col_select.rows.count <> 1 then
+                twoslsregtrain = "col_select must have exactly one row"
+                exit function
+            end if
+            
+            exog_n_vars = application.worksheetfunction.countif(exog_col_select, "=1")
+            
+            if application.worksheetfunction.countif(exog_col_select, "=0") + exog_n_vars <> exog_x.columns.count then
+                twoslsregtrain = "all values in col_select must be zero or one"
+                exit function
+            end if
+            
+            for j = 1 to exog_col_select.count
+                exog_col_select_flags(j) = exog_col_select(j)
+            next j
+        end if
+    end if
+    
+    ' validate presence of y, endogenous variables and exogenous
+    ' variables, and find how many of them there are
+    ' ----------------------------------------------------------
+    
+    if endog_x is nothing then
+        twoslsregtrain = "please include endogenous x variables"
+        exit function
+    else
+        endog_n_vars = endog_x.columns.count
+    end if
+    
+    if instruments is nothing then
+        twoslsregtrain = "please include instrumental variables"
+        exit function
+    else
+        instruments_n_vars = instruments.columns.count
+    end if
+    
+    ' know_y cannot be nothing because it is not optional in the function
+    if known_y.columns.count <> 1 then
+        twoslsregtrain = "known_y must have exactly one column"
+        exit function
+    end if
+
+    ' decide if a constant should be included
+    ' ---------------------------------------
+    
+    if constant then
+        include_constant = 1
+    else
+        include_constant = 0
+    end if
+
+    ' handle headers
+    ' --------------
+        
+    ' remove the headers from the input ranges, and save the header ranges elsewhere
+    if exog_n_vars > 0 then
+        set exog_x_header_in = util.getheaderrowsandresizerange(exog_x)
+    end if
+    set endog_x_header_in = util.getheaderrowsandresizerange(endog_x)
+    set instrument_header_in = util.getheaderrowsandresizerange(instruments)
+    set y_header_in = util.getheaderrowsandresizerange(known_y)
+    
+    ' process the exogenous header ranges; the constant counts as an exogenous
+    ' variable
+    redim exog_x_header(1 to exog_n_vars + include_constant)
+    
+    if include_constant = 1 then
+        exog_x_header(1) = "constant"
+    end if
+    
+    if exog_x_header_in is nothing then
+        for i = 1 to exog_n_vars
+            exog_x_header(i + include_constant) = "exog var " & i
+        next
+    else
+        j = 1
+        for i = 1 to exog_x.columns.count
+            if exog_col_select_flags(i) = 1 then
+                exog_x_header(j + include_constant) = exog_x_header_in(i)
+                j = j + 1
+            end if
+        next i
+    end if
+    
+    ' process the endogenous header ranges
+    redim endog_x_header(1 to endog_n_vars)
+    
+    if endog_x_header_in is nothing then
+        for i = 1 to endog_n_vars
+            endog_x_header(i) = "endog var " & i
+        next i
+    else
+        for i = 1 to endog_x.columns.count
+            endog_x_header(i) = endog_x_header_in(i)
+        next i
+    end if
+            
+    ' note: we don't need to process the instrument headers, since they won't be output
+    
+    ' process the y header range
+    if y_header_in is nothing then
+        y_header = "twoslsregtrain"
+    else
+        y_header = y_header_in(1)
+    end if
+    
+    ' find and validate data dimensions
+    ' ---------------------------------
+    
+    n = known_y.rows.count
+    
+    if not (exog_x is nothing) then
+        if n <> exog_x.rows.count then
+            twoslsregtrain = "number of exog_x and y rows should be the same."
+            exit function
+        end if
+    end if
+    
+    if n <> endog_x.rows.count then
+        twoslsregtrain = "number of endog_x and y rows should be the same."
+        exit function
+    end if
+    
+    if n <> instruments.rows.count then
+        twoslsregtrain = "number of instruments rows and y rows should be the same."
+        exit function
+    end if
+    
+    ' ensure all data is numeric
+    ' --------------------------
+    
+    if not (exog_x is nothing) then
+        if application.worksheetfunction.count(exog_x) <> exog_x.columns.count * exog_x.rows.count then
+            twoslsregtrain = "all exog_x values should be numeric."
+            exit function
+        end if
+    end if
+    
+    if application.worksheetfunction.count(endog_x) <> endog_x.columns.count * endog_x.rows.count then
+        twoslsregtrain = "all endog_x values should be numeric."
+        exit function
+    end if
+    
+    if application.worksheetfunction.count(instruments) <> instruments.columns.count * instruments.rows.count then
+        twoslsregtrain = "all instrument values should be numeric."
+        exit function
+    end if
+    
+    if application.worksheetfunction.count(known_y) <> known_y.rows.count then
+        twoslsregtrain = "all know_y values should be numeric."
+        exit function
+    end if
+
+    ' construct the x, z, and y matrices
+    ' ----------------------------------
+    dim y() as variant
+    dim x() as double
+    dim z() as double
+    
+    redim y(1 to n)
+    redim x(1 to n, 1 to exog_n_vars + endog_n_vars + include_constant)
+    redim z(1 to n, 1 to exog_n_vars + instruments_n_vars + include_constant)
+    
+    ' deal with y
+    y = known_y.value2
+    
+    ' create temporary variables to extract exog_x, endog_x, instruments
+    dim exog_x_temp() as variant
+    dim endog_x_temp() as variant
+    dim instruments_temp() as variant
+    
+    if not (exog_x is nothing) then
+        exog_x_temp = exog_x.value2
+    end if
+    endog_x_temp = endog_x.value2
+    instruments_temp = instruments.value2
+       
+    ' deal with x, given by [ const? | x_exog | x_endog ]
+    for i = 1 to n
+        if include_constant = 1 then
+            x(i, 1) = 1
+        end if
+        
+        if not (exog_x is nothing) then
+            jj = 1
+            for j = 1 to exog_x.columns.count
+                if exog_col_select_flags(j) = 1 then
+                    x(i, include_constant + jj) = exog_x_temp(i, j)
+                    jj = jj + 1
+                end if
+            next j
+        end if
+        
+        for j = 1 to endog_x.columns.count
+            x(i, include_constant + exog_n_vars + j) = endog_x_temp(i, j)
+        next j
+    next i
+    
+    ' deal wtih z, given by [ const? | x_exog | instruments ]
+    for i = 1 to n
+        if include_constant = 1 then
+            z(i, 1) = 1
+        end if
+    
+        if not (exog_x is nothing) then
+            jj = 1
+            for j = 1 to exog_x.columns.count
+                if exog_col_select_flags(j) = 1 then
+                    z(i, include_constant + jj) = exog_x_temp(i, j)
+                    jj = jj + 1
+                end if
+            next j
+        end if
+        
+        for j = 1 to instruments.columns.count
+            z(i, include_constant + exog_n_vars + j) = instruments_temp(i, j)
+        next j
+    next i
+    
+    ' do the regression
+    ' -----------------
+    
+    ' step 1
+    dim ztz as variant
+    dim ztzmone as variant
+    dim zt as variant, zt2 as variant
+        
+    zt = largetranspose(z)
+    ztz = largemmult(zt, z)
+    
+    'zt = worksheetfunction.transpose(z)
+    'ztz = worksheetfunction.mmult(zt, z)
+    
+    if worksheetfunction.mdeterm(ztz) <= 0.00001 then
+        twoslsregtrain = "error: your data is highly co-linear; cannot fit regression"
+        exit function
+    end if
+    
+    ztzmone = worksheetfunction.minverse(ztz)
+    
+    ' step 2
+    dim ztx as variant
+    dim xtz_ztzmone as variant
+    
+    ztx = largemmult(zt, x)
+    'xtz_ztzmone = largemmult(largetranspose(ztx), ztzmone)
+    
+    'ztx = worksheetfunction.mmult(zt, x)
+    xtz_ztzmone = worksheetfunction.mmult(worksheetfunction.transpose(ztx), ztzmone)
+    
+        
+    ' step 3
+    dim xtz_ztzmone_ztx as variant
+    dim var_b_mat as variant
+    
+    'xtz_ztzmone_ztx = largemult(xtz_ztzmone, ztx)
+    xtz_ztzmone_ztx = worksheetfunction.mmult(xtz_ztzmone, ztx)
+    
+    if worksheetfunction.mdeterm(xtz_ztzmone_ztx) <= 0.00001 then
+        twoslsregtrain = "error: your data is highly co-linear; cannot fit regression"
+        exit function
+    end if
+    
+    var_b_mat = worksheetfunction.minverse(xtz_ztzmone_ztx)
+    
+    ' step 4
+    dim xtz_ztzmone_zty as variant
+    
+    xtz_ztzmone_zty = largemmult(xtz_ztzmone, largemmult(zt, y))
+    'xtz_ztzmone_zty = worksheetfunction.mmult(xtz_ztzmone, worksheetfunction.mmult(zt, y))
+    
+    
+    ' step 5
+    dim b_hat as variant
+    
+    b_hat = worksheetfunction.mmult(var_b_mat, xtz_ztzmone_zty)
+    
+    ' find the errors
+    ' ---------------
+    
+    dim y_hat as variant
+    dim ess as double
+    dim s_squared as double
+    
+    y_hat = worksheetfunction.mmult(x, b_hat)
+    
+    for i = 1 to n
+        ess = ess + (y(i, 1) - y_hat(i, 1)) ^ 2
+    next i
+    
+    s_squared = ess / (n - (include_constant + exog_n_vars + endog_n_vars))
+        
+    ' build the result
+    ' ----------------
+    redim out(1 to 6, 1 to exog_n_vars + endog_n_vars + include_constant + 1)
+    
+    ' top left cell
+    out(1, 1) = y_header & " (6," & exog_n_vars + endog_n_vars + include_constant + 1 & ")"
+    
+    ' headers
+    for i = 1 to exog_n_vars + include_constant
+        out(1, i + 1) = exog_x_header(i)
+    next i
+    
+    for i = 1 to endog_n_vars
+        out(1, i + exog_n_vars + include_constant + 1) = endog_x_header(i)
+    next i
+    
+    ' coefficients
+    out(2, 1) = "coefficients"
+    
+    for j = 1 to exog_n_vars + endog_n_vars + include_constant
+        out(2, 1 + j) = b_hat(j, 1)
+    next j
+    
+    ' standard errors
+    out(3, 1) = "std error"
+    
+    for j = 1 to exog_n_vars + endog_n_vars + include_constant
+        out(3, 1 + j) = math.sqr(s_squared * var_b_mat(j, j))
+    next j
+    
+    ' p-values
+    out(4, 1) = "p-value"
+    
+    for j = 1 to exog_n_vars + endog_n_vars + include_constant
+        if out(3, 1 + j) = 0 then
+            out(4, 1 + j) = 0
+        else
+            out(4, j + 1) = application.worksheetfunction.tdist(abs(out(2, j + 1) / out(3, j + 1)), n - (exog_n_vars + endog_n_vars + include_constant), 1) * 2
+        end if
+    next j
+    
+    ' other details
+    out(5, 1) = "number valid obs"
+    out(5, 2) = n
+    
+    out(6, 1) = "total obs"
+    out(6, 2) = n
+        
+    ' pad the rest of rows 5 and 6 with spaces
+    for i = 3 to (exog_n_vars + endog_n_vars + include_constant + 1)
+        out(5, i) = ""
+        out(6, i) = ""
+    next i
+        
+    twoslsregtrain = out
+     
+    exit function
+     
+    'error handler
+unexpected_error_twoslstrain:
+    twoslsregtrain = "fatal error " & err.number & ":" & err.description
+end function
+
+ 
 ' https://joannamsc.wordpress.com/2017/08/27/estimate-credit-score-with-logit-application-in-vba/
 public function logisticregtrain(known_y as range, known_x as range, optional constant as boolean = true, _
 optional not_implemented1 as long = 0, optional col_select as range = nothing, _
@@ -888,6 +1341,51 @@ optional dummy as long = 0, optional col_select_in as range = nothing, optional 
     util.functiondescription funcname, funcdesc, funccat, argdesc
 end sub
 
+private sub registertwoslsregtrain()
+'function signature:  public function twoslsregtrain(known_y as range, optional exog_x as range = nothing, optional endog_x as range = nothing, _
+                                optional instruments as range = nothing, optional constant as boolean = true, _
+                                    optional not_implemented2 as long = 0, optional exog_col_select as range = nothing, _
+                                    optional not_implemented3 as range = nothing, optional not_implemented4 as boolean)
+                                    
+    'delclaring the necessary variables
+    dim funcname as string
+    dim funcdesc as string
+    dim funccat as variant
+    
+    'depending on the function arguments define the necessary variables on the array.
+    dim argdesc(1 to 9) as string
+    
+    funcname = "twoslsregtrain"
+    
+    'here we add the function's description.
+    funcdesc = "array function to train a two-stage least squares (2sls) regression model. user can optionally select labels in the top row." & _
+    vbnewline & vbnewline & "output:" & vbnewline & "1st row: coefficients" & vbnewline & "2nd row: std error" & vbnewline & _
+    "3rd row: p-value"
+    
+    'choose the built-in function category (it will no longer appear in udf category).
+    'for example, 15 is the engineering category, 4 is the statistical category etc.
+    funccat = "cbs ba add-in functions"
+    
+    'you can also use instead of numbers the full category name, for example:
+    'funccat = "engineering"
+    'or you can define your own custom category:
+    'funccat = "my vba functions"
+    
+    'here we add the description for the function's arguments.
+    argdesc(1) = "known y's"
+    argdesc(2) = "exogenous x's (can be omitted)"
+    argdesc(3) = "endogenous x's"
+    argdesc(4) = "instruments"
+    argdesc(5) = "if true or omitted, include a constant term in the first and second stage regression"
+    argdesc(6) = "included for backward compatibility. value ignored."
+    argdesc(7) = "a vector of 0/1. if omitted, all columns in exog_x are considered for regression." & _
+                 "if specified, and if the jth entry is 0 in this vector, the jth column in exog_x is ignored."
+    argdesc(8) = "included for backward compatibility. value ignored."
+    argdesc(9) = "included for backward compatibility. value ignored."
+    
+    util.functiondescription funcname, funcdesc, funccat, argdesc
+end sub
+
 
 private sub registerlinrpredict()
 'function signature:  linearregpredict(model as range, known_x as range, optional constant as boolean = true, _
@@ -1006,4 +1504,10 @@ public sub registerall()
     registerlogrpredict
     registerlinrtrain
     registerlinrpredict
+    registertwoslsregtrain
 end sub
+
+
+
+
+
