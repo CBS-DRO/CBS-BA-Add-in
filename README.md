@@ -6,7 +6,7 @@
   - Push back to github
 
 The specific errors I found were as follows:
-  - The version numbers in the VBA file (0.0.32) and in the user manual LaTeX file (0.0.31) do not match. Please fix.
+  - The user manual PDF file does not seem to have been generated the current user manual LaTeX file. Please recompile the latest LaTeX file, so that it correctly reflects the PDF.
 ## Version: 0.0.32
 <!-- DO ***NOT*** EDIT ANYTHING ABOVE THIS LINE, INCLUDING THIS COMMENT -->
 
