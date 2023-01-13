@@ -10,7 +10,7 @@ The workflow to make changes is as follows:
   - Create a new branch for your update. **You should never EVER commit to the main branch directly!**
   - Make the edits you want to make
       - Edit the `.xlam` file (in particular, ensure the version number at the top of `Util.bas` is updated)
-      - Edit the user manual LaTeX PDF and compile it (in particular, ensure the version number at the top of the LaTeX file is updated). It is essential that you use unix-style linebreaks (LF rather the CR LF).
+      - Edit the user manual LaTeX PDF and compile it (in particular, ensure the version number at the top of the LaTeX file is updated).
       - DO NOT edit the files in the `~VBA Code` folder; these will automatically be updated by the VBA robot
   - Push your branch to GitHub - the VBA robot will get to work and carry out the following actions
       - Ensure the following files exist in the repo

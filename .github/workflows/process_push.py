@@ -82,7 +82,9 @@ if __name__ == '__main__':
         # Generate the MD5 hash of the LaTeX file
         import hashlib
         with open(expected_files['manual_latex'], 'rb') as f:
-            latex_hash = hashlib.md5(f.read()).hexdigest().upper()
+            f_text = f.read()
+            latex_hash = hashlib.md5(f_text).hexdigest().upper()
+            latex_hash_crlf = hashlib.md5(f_text.replace(b'\n', b'\r\n')).hexdigest().upper()
         
         # Load the hash printed to the PDF
         import PyPDF2
@@ -90,9 +92,10 @@ if __name__ == '__main__':
         pdf_hash = pdf_page.split('Manual version: ')[1].split('\n')[0]
         
         # Ensure they match
-        print(latex_hash)
-        print(pdf_hash)
-        if latex_hash != pdf_hash:
+        print(f'Latex hash:           {latex_hash}')
+        print(f'Latex hash with crlf: {latex_hash_crlf}')
+        print(f'Hash from pdf:        {pdf_hash}')
+        if pdf_hash not in [latex_hash, latex_hash_crlf]:
             errors.append('  - The user manual PDF file does not seem to have been generated '
                               'the current user manual LaTeX file. Please recompile the latest '
                               'LaTeX file, so that it correctly reflects the PDF.')
