@@ -8,28 +8,36 @@ on:
 
 jobs:
   PushRelease:
-    runs-on: ubuntu-latest
+    env:
+      PROJECT: CBS_BA_addin
+      APP_ID: 7d4c8374-9811-4c29-900a-a72c423b6a9a
+      APP_PUBLISHER: Columbia Business School
+    if: github.event_name == 'release'
+    runs-on: windows-2022
     steps:
-      - run: echo "Starting"
-      - name: Check out repository code
-        uses: actions/checkout@v2
-      - name: Upload addin file to the GitHub release page
-        if: github.event_name == 'release'
-        uses: actions/upload-release-asset@v1
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        with:
-          upload_url: ${{ github.event.release.upload_url }}
-          asset_path: "${{ github.workspace }}/CBS BA Multiplatform add-in.xlam"
-          asset_name: CBS BA Multiplatform add-in.xlam
-          asset_content_type: application/vnd.ms-excel.addin.macroEnabled.12
-      - name: Upload addin manual to the GitHub release page
-        if: github.event_name == 'release'
-        uses: actions/upload-release-asset@v1
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        with:
-          upload_url: ${{ github.event.release.upload_url }}
-          asset_path: "${{ github.workspace }}/User manual/BA Add-In User Manual.pdf"
-          asset_name: "BA Add-In User Manual.pdf"
-          asset_content_type: application/pdf
+    - run: echo "Starting"
+    - name: Check out repository code
+      uses: actions/checkout@v3
+    - name: Replace placeholders in installer.iss
+      shell: bash
+      run: |
+        sed -i "s/name_placeholder/${{ env.PROJECT }}/" .github/installer.iss
+        sed -i "s/appid_placeholder/${{ env.APP_ID }}/" .github/installer.iss
+        sed -i "s/publisher_placeholder/${{ env.APP_PUBLISHER }}/" .github/installer.iss
+    - name: Set release version string in installer.iss
+      shell: bash
+      run: sed -i "s/dev/${{ github.event.release.tag_name }}/" .github/installer.iss
+    - name: Create Installer
+      run: iscc .github/installer.iss
+    - name: Upload xlam to the GitHub release
+      uses: softprops/action-gh-release@v1
+      with:
+        files: "CBS BA Multiplatform add-in.xlam"
+    - name: Upload use manual to the GitHub release
+      uses: softprops/action-gh-release@v1
+      with:
+        files: "User manual/BA Add-In User Manual.pdf"
+    - name: Upload Windows installer to GitHub release
+      uses: softprops/action-gh-release@v1
+      with:
+        files: .github/Output/${{ env.PROJECT }}-${{ github.event.release.tag_name }}.exe
