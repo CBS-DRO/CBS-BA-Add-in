@@ -17,14 +17,16 @@ AppPublisher={#MyAppPublisher}
 ; AppUpdatesURL={#MyAppURL}
 DefaultDirName={localappdata}\{#MyAppName}
 DisableDirPage=yes
-DefaultGroupName={#MyAppName}
+DefaultGroupName="CBS BA Addin"
 DisableProgramGroupPage=yes
 OutputBaseFilename={#MyAppName}-{#MyAppVersion}
 Compression=lzma
 SolidCompression=yes
 PrivilegesRequired=none
-UninstallDisplayName={#MyAppName}
+UninstallDisplayName="CBS BA Addin"
 SetupIconFile="{#GetEnv('GITHUB_WORKSPACE')}\.github\cbs_icon.ico"
+UninstallDisplayIcon="{#GetEnv('GITHUB_WORKSPACE')}\.github\cbs_icon.ico"
+WizardImageFile="{#GetEnv('GITHUB_WORKSPACE')}\.github\cbs_icon.ico"
 
 [CustomMessages]
 InstallingLabel=
@@ -35,6 +37,10 @@ Type: filesandordirs; Name: "{app}"
 [Files]
 Source: "{#GetEnv('GITHUB_WORKSPACE')}\.github\xlwings.exe"; DestDir: "{app}"; Flags: ignoreversion
 Source: "{#GetEnv('GITHUB_WORKSPACE')}\CBS BA Multiplatform add-in.xlam"; DestDir: "{app}\addins"; Flags: ignoreversion
+Source: "{#GetEnv('GITHUB_WORKSPACE')}\User manual\BA Add-In User Manual.pdf"; DestDir: "{app}"; Flags: ignoreversion
+
+[Icons]
+Name: "{group}\User manual"; Filename: "{app}\BA Add-In User Manual.pdf"
 
 [Code]
 procedure InitializeWizard;
