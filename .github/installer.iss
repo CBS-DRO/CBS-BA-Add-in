@@ -25,7 +25,7 @@ SolidCompression=yes
 PrivilegesRequired=none
 UninstallDisplayName="CBS BA Addin"
 SetupIconFile="{#GetEnv('GITHUB_WORKSPACE')}\.github\cbs_icon.ico"
-UninstallDisplayIcon="cbs_icon.ico"
+UninstallDisplayIcon={app}\cbs_icon.ico
 
 [CustomMessages]
 InstallingLabel=
