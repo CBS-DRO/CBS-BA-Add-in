@@ -1,0 +1,23 @@
+<customUI xmlns="http://schemas.microsoft.com/office/2009/07/customui" xmlns:Q="cbsbaRibbon">
+    <ribbon startFromScratch="false">
+        <tabs>
+       	    <tab id="ribbon_CBSBA" label="CBS BA Add-In" insertAfterMso="TabView">
+                <group id="group_MonteCarlo" label="Monte Carlo">
+                    <button id="cbsbaShowMonteCarlosDialog_Btn" label="Monte Carlo Simulation" onAction="cbsbaButtons" 
+                    imageMso="Calculator" size="large" supertip="Runs Monte Carlo Simulation.&#13;Shortcut: Ctrl+Shift+M"/>
+                    <button id="cbsbaClearHistograms_Btn" label="Clear Histogram Sheets" onAction="cbsbaButtons" imageMso="SheetDelete"/>
+                </group>
+                <group id="group_Macros" label="Macros">
+                    <button id="cbsbaAutoFormulaBox_Btn" label="Formula Box" onAction="cbsbaButtons"
+                    imageMso="NameUseInFormula" size="large" supertip="Adds Formula Box.&#13;Shortcut: Ctrl+Shift+F"/>
+                    <button id="cbsbaVersionNum_Btn" label="Version Info" onAction="cbsbaButtons" imageMso="Info"
+                    supertip="Shows Version Information.&#13;Shortcut: Ctrl+Shift+V"/>                  
+                    <button id="cbsbaFixLinks_Btn" label="Fix Links to Add-In" onAction="cbsbaButtons" imageMso="FormControlCheckBox"/> 
+                </group>
+                <group id="group_SolverTable" label="Solver Table">                   
+                    <button id="cbsbaSolverTable_Btn" label="Solver Table" onAction="RunSolverTable" imageMso="TableIndexes" size="large"/>
+                </group>
+            </tab>
+        </tabs>
+    </ribbon>
+</customUI>
