@@ -25,7 +25,7 @@ SolidCompression=yes
 PrivilegesRequired=none
 UninstallDisplayName="CBS BA Addin"
 SetupIconFile="{#GetEnv('GITHUB_WORKSPACE')}\.github\cbs_icon.ico"
-UninstallDisplayIcon="{#GetEnv('GITHUB_WORKSPACE')}\.github\cbs_icon.ico"
+UninstallDisplayIcon="cbs_icon.ico"
 
 [CustomMessages]
 InstallingLabel=
@@ -37,6 +37,7 @@ Type: filesandordirs; Name: "{app}"
 Source: "{#GetEnv('GITHUB_WORKSPACE')}\.github\xlwings.exe"; DestDir: "{app}"; Flags: ignoreversion
 Source: "{#GetEnv('GITHUB_WORKSPACE')}\CBS BA Multiplatform add-in.xlam"; DestDir: "{app}\addins"; Flags: ignoreversion
 Source: "{#GetEnv('GITHUB_WORKSPACE')}\User manual\BA Add-In User Manual.pdf"; DestDir: "{app}"; Flags: ignoreversion
+Source: "{#GetEnv('GITHUB_WORKSPACE')}\.github\cbs_icon.ico"; DestDir: "{app}"; Flags: ignoreversion
 
 [Icons]
 Name: "{group}\User manual"; Filename: "{app}\BA Add-In User Manual.pdf"
