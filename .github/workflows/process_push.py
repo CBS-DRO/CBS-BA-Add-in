@@ -4,6 +4,10 @@ import os
 import shutil
 from oletools.olevba3 import VBA_Parser
 
+import tempfile
+import pathlib
+import shutil
+
 EXCEL_FILE_EXTENSIONS = ('xlsb', 'xls', 'xlsm', 'xla', 'xlt', 'xlam',)
 
 def parse(workbook_path, extract_path, KEEP_NAME=False):
@@ -115,11 +119,28 @@ if __name__ == '__main__':
                 shutil.rmtree(VBA_CODE_FOLDER)
             
             # Extract the VBA code from the workbook
-            parse('CBS BA Multiplatform add-in.xlam', VBA_CODE_FOLDER)
+            parse(expected_files['add-in'], VBA_CODE_FOLDER)
             
             code_extract_done = True
         except Exception as e:
             errors.append(f'  - Error extracting the VBA code from the workbook; the error was {str(e)}')
+    
+    # ------------------------
+    # -  Extract the ribbon  -
+    # ------------------------
+    
+    # Create a temporary directory in which to extract the xlam as a zip file
+    with tempfile.TemporaryDirectory() as td:
+        temp_path = pathlib.Path(td)
+        temp_zip = temp_path / pathlib.Path(expected_files['add-in']).with_suffix('.zip').name
+        
+        shutil.copyfile(expected_files['add-in'], temp_zip)
+        shutil.unpack_archive(temp_zip, temp_path / "unpacked")
+        
+        try:
+            shutil.copyfile( temp_path / 'unpacked' / 'customUI' / 'customUI14.xml', pathlib.Path(VBA_CODE_FOLDER) / 'ribbon.xml' )
+        except:
+            pass
     
     # -------------------------------
     # -  Deal with version numbers  -
