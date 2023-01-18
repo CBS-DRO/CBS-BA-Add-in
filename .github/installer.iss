@@ -26,7 +26,6 @@ PrivilegesRequired=none
 UninstallDisplayName="CBS BA Addin"
 SetupIconFile="{#GetEnv('GITHUB_WORKSPACE')}\.github\cbs_icon.ico"
 UninstallDisplayIcon="{#GetEnv('GITHUB_WORKSPACE')}\.github\cbs_icon.ico"
-WizardImageFile="{#GetEnv('GITHUB_WORKSPACE')}\.github\cbs_icon.ico"
 
 [CustomMessages]
 InstallingLabel=
