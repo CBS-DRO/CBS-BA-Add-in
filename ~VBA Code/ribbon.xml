@@ -17,6 +17,9 @@
                 <group id="group_SolverTable" label="Solver Table">                   
                     <button id="cbsbaSolverTable_Btn" label="Solver Table" onAction="RunSolverTable" imageMso="TableIndexes" size="large"/>
                 </group>
+                <group id="group_UserManual" label="User Manual">
+                    <button id="cbsbaUserManual_Btn" label="User Manual" onAction="cbsbaButtons" imageMso="Help" size="large"/>
+                </group>
             </tab>
         </tabs>
     </ribbon>
