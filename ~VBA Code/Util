@@ -3,10 +3,88 @@ option explicit
 ' the github action depends on the exact format of this line; do not change any
 ' part of this line other than the version number without first reading the
 ' github action file
-public const constversionnumber as string = "0.0.32"
+public const constversionnumber as string = "0.0.33"
 
 ' this constant is the absolute tolerance when making comparisons in mergesort
 public const constmergesort_tolerance as double = 0.0000000001
+
+' =========================================================================
+' define functions to open a pdf file
+'   code from
+'      https://www.access-programmers.co.uk/forums/threads/cant-disable-hyperlink-warning-for-pdf-files.295969/
+#if vba7 then
+    private declare ptrsafe function shellexecute lib "shell32.dll" alias "shellexecutea" (byval hwnd as longptr, _
+                byval lpszop as string, byval lpszfile as string, byval lpszparams as string, byval lpszdir as string, _
+                byval fsshowcmd as longptr) as longptr
+                
+    private declare ptrsafe function getdesktopwindow lib "user32" () as longptr
+#else
+    private declare function shellexecute lib "shell32.dll" alias "shellexecutea" (byval hwnd as long, _
+                byval lpszop as string, byval lpszfile as string, byval lpszparams as string, byval lpszdir as string, _
+                byval fsshowcmd as long) as long
+                
+    private declare function getdesktopwindow lib "user32" () as long
+#end if
+
+const sw_shownormal = 1
+const se_err_fnf = 2&
+const se_err_pnf = 3&
+const se_err_accessdenied = 5&
+const se_err_oom = 8&
+const se_err_dllnotfound = 32&
+const se_err_share = 26&
+const se_err_associncomplete = 27&
+const se_err_ddetimeout = 28&
+const se_err_ddefail = 29&
+const se_err_ddebusy = 30&
+const se_err_noassoc = 31&
+const error_bad_format = 11&
+
+private function startdoc(psdocname as string) as long
+    dim scr_hdc as longptr
+    
+    scr_hdc = getdesktopwindow()
+    shellexecute scr_hdc, "open", psdocname, "", "c:\", sw_shownormal
+end function
+
+public sub opennativeapp(byval psdocname as string)
+    dim r as long, msg as string
+    
+    r = startdoc(psdocname)
+    if r <= 32 then
+        'there was an error
+        select case r
+            case se_err_fnf
+                msg = "file not found"
+            case se_err_pnf
+                msg = "path not found"
+            case se_err_accessdenied
+                msg = "access denied"
+            case se_err_oom
+                msg = "out of memory"
+            case se_err_dllnotfound
+                msg = "dll not found"
+            case se_err_share
+                msg = "a sharing violation occurred"
+            case se_err_associncomplete
+                msg = "incomplete or invalid file association"
+            case se_err_ddetimeout
+                msg = "dde time out"
+            case se_err_ddefail
+                msg = "dde transaction failed"
+            case se_err_ddebusy
+                msg = "dde busy"
+            case se_err_noassoc
+                msg = "no association for file extension"
+            case error_bad_format
+                msg = "invalid exe file or error in exe image"
+            case else
+                msg = "unknown error"
+        end select
+    end if
+end sub
+' =========================================================================
+' end function to open pdf file
 
 public function largetranspose(varray as variant) as variant
     dim vresult as variant
@@ -420,6 +498,23 @@ sub checkandfixlinks(obook as workbook)
     on error goto 0
 end sub
 
+sub showusermanual()
+    ' check whether we have a user manual
+    dim user_manual_path as string
+    
+    user_manual_path = environ("localappdata") & "\cbs_ba_addin\ba add-in user manual.pdf"
+    
+    if dir(user_manual_path) <> "" then
+        opennativeapp (user_manual_path)
+        'on error resume next
+        'activeworkbook.followhyperlink user_manual_path
+        'on error goto 0
+    else
+        msgbox "i couldn't find the user manual on your machine; see the addin website for a copy of the manual.", vbinformation
+    end if
+    
+end sub
+
 
 function checkoldaddinopen() as boolean
     on error resume next
@@ -551,3 +646,4 @@ function addininstall(saddinfilename as string, binstall as boolean) as boolean
   next
   
 end function
+

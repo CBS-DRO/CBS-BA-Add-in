@@ -1,5 +1,13 @@
 # CBS VBA Business Analytics add-in
-## Version: 0.0.32
+## ERROR REPORT
+**Some errors were found while processing your latest push. Please fix them before proceeding as follows**
+  - Pull the latest commit (made by the VBA robot) from github
+  - Make your changes
+  - Push back to github
+
+The specific errors I found were as follows:
+  - The version numbers in the VBA file (0.0.33) and in the user manual LaTeX file (0.0.32) do not match. Please fix.
+## Version: 0.0.33
 <!-- DO ***NOT*** EDIT ANYTHING ABOVE THIS LINE, INCLUDING THIS COMMENT -->
 
 This repo contains the latest version of the CBS Business Analytics VBA add-in, designed by the [Decision, Risk, and Operations](https://academics.gsb.columbia.edu/phd/academics/dro) at Columbia Business School. See the add-in file itself for copyright and license information.

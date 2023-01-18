@@ -16,7 +16,10 @@ private sub cbsbabuttons(control as iribboncontrol)
             
         case is = "cbsbafixlinks_btn"
             call util.checkandfixlinks_activeworkbook
-            
+        
+        case is = "cbsbausermanual_btn"
+            call util.showusermanual
+        
         case else
         
     end select
