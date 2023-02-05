@@ -25,3 +25,35 @@ private sub cbsbabuttons(control as iribboncontrol)
     end select
 
 end sub
+
+public sub launchbasicsolver(control as iribboncontrol)
+    #if mac then
+        msgbox "the solver controls on the cbs ba ribbon do not work on a max. to use solver, go " & _
+                    "to tools > excel add-ins, and check the 'solver' option." & vbcrlf & vbcrlf & _
+                    "then, go to the 'data' tab and click on 'solver'"
+    #else
+    
+        dim i as integer
+        for i = 1 to application.addins.count
+            if application.addins.item(i).name = "solver.xlam" then
+                application.addins.item(i).installed = true
+                
+                application.run "solver.xlam!solvermain"
+                exit sub
+            end if
+        next i
+    
+        msgbox "could not enable solver on your computer."
+    #end if
+end sub
+
+public sub launchsolverresolve(control as iribboncontrol)
+    #if mac then
+        msgbox "the solver controls on the cbs ba ribbon do not work on a max. to use solver, go " & _
+                    "to tools > excel add-ins, and check the 'solver' option." & vbcrlf & vbcrlf & _
+                    "then, go to the 'data' tab and click on 'solver'"
+    #else
+        on error resume next
+        application.run "solver.xlam!solversolve", false
+    #end if
+end sub
