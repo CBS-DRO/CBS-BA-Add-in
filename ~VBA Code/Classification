@@ -407,6 +407,14 @@ on error goto unexpected_error_roc
     dim n as long, m as long, num_pos as long, num_neg as long
     n = score.rows.count
     m = threshold.rows.count
+    
+    ' if we have a single threshold, return an error
+    if m = 1 then
+        roc = "error: this function only works with multiple thresholds; you selected one threshold only"
+        exit function
+    end if
+    
+    
     dim score_arr() as variant, actual_arr() as variant
     dim thres_arr() as variant, cost_arr() as variant, cost_included as boolean
     redim score_arr(1 to n)

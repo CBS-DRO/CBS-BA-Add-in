@@ -3,7 +3,7 @@ option explicit
 ' the github action depends on the exact format of this line; do not change any
 ' part of this line other than the version number without first reading the
 ' github action file
-public const constversionnumber as string = "0.0.33"
+public const constversionnumber as string = "0.0.34"
 
 ' this constant is the absolute tolerance when making comparisons in mergesort
 public const constmergesort_tolerance as double = 0.0000000001

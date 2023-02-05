@@ -12,7 +12,11 @@
                     imageMso="NameUseInFormula" size="large" supertip="Adds Formula Box.&#13;Shortcut: Ctrl+Shift+F"/>
                     <button id="cbsbaVersionNum_Btn" label="Version Info" onAction="cbsbaButtons" imageMso="Info"
                     supertip="Shows Version Information.&#13;Shortcut: Ctrl+Shift+V"/>                  
-                    <button id="cbsbaFixLinks_Btn" label="Fix Links to Add-In" onAction="cbsbaButtons" imageMso="FormControlCheckBox"/> 
+                    <button id="cbsbaFixLinks_Btn" label="Fix Links to Add-In" onAction="cbsbaButtons" imageMso="ErrorChecking"/> 
+                </group>
+                <group id="group_Solver" label="Solver">                   
+                    <button id="cbsbaSolver_Btn" label="Solver" onAction="LaunchBasicSolver" imageMso="Calculator" size="large"/>
+                    <button id="cbsbaSolverResolve_Btn" label="Re-solve" onAction="LaunchSolverResolve" imageMso="AccessRefreshAllLists" size="large"/>
                 </group>
                 <group id="group_SolverTable" label="Solver Table">                   
                     <button id="cbsbaSolverTable_Btn" label="Solver Table" onAction="RunSolverTable" imageMso="TableIndexes" size="large"/>
