@@ -25,5 +25,5 @@ jobs:
           git config --global user.name 'VBA Robot'
           git config --global user.email 'VBA Robot'
           git add .
-          git commit -m "VBA - ${{ github.event.head_commit.message }}" --allow-empty
+          git commit -m "VBA Robot" --allow-empty
           git push
