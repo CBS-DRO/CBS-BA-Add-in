@@ -25,5 +25,5 @@ jobs:
           git config --global user.name 'VBA Robot'
           git config --global user.email 'VBA Robot'
           git add .
-          git commit -m "VBA Robot" --allow-empty
+          git commit -am "VBA Robot" --allow-empty
           git push
