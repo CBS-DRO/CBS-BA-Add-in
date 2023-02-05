@@ -28,9 +28,9 @@ end sub
 
 public sub launchbasicsolver(control as iribboncontrol)
     #if mac then
-        msgbox "the solver controls on the cbs ba ribbon do not work on a max. to use solver, go " & _
+        msgbox "the solver controls on the cbs ba ribbon do not work on mac computers. to use solver, go " & _
                     "to tools > excel add-ins, and check the 'solver' option." & vbcrlf & vbcrlf & _
-                    "then, go to the 'data' tab and click on 'solver'"
+                    "then, go to the 'data' tab and click on 'solver'", vbinformation
     #else
     
         dim i as integer
@@ -43,15 +43,15 @@ public sub launchbasicsolver(control as iribboncontrol)
             end if
         next i
     
-        msgbox "could not enable solver on your computer."
+        msgbox "cbs ba: i wasn't able to enable solver on your computer. please ask for assistance.", vbexclamation
     #end if
 end sub
 
 public sub launchsolverresolve(control as iribboncontrol)
     #if mac then
-        msgbox "the solver controls on the cbs ba ribbon do not work on a max. to use solver, go " & _
+        msgbox "the solver controls on the cbs ba ribbon do not work on mac computers. to use solver, go " & _
                     "to tools > excel add-ins, and check the 'solver' option." & vbcrlf & vbcrlf & _
-                    "then, go to the 'data' tab and click on 'solver'"
+                    "then, go to the 'data' tab and click on 'solver'", vbinformation
     #else
         on error resume next
         application.run "solver.xlam!solversolve", false
