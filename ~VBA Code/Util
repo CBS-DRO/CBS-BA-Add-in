@@ -451,9 +451,37 @@ application.displayalerts = true
 end sub
 
 public sub versionnum()
+    
+    ' try and get the current version number from github, but fail gracefully
+    dim cur_version_message as string
+    
+    on error goto after_version_check
+    
+    dim objhttp as object
+    set objhttp = createobject("msxml2.serverxmlhttp")
+    objhttp.open "get", "https://github.com/cbs-dro/cbs-ba-add-in/raw/main/readme.md", false
+    objhttp.send ""
+    doevents
+    
+    ' get the latest version by donwloading the github readme page, splitting on line breaks,
+    ' getting the second line, then splitting on spaces to extract the version
+    dim latest_version as string
+    latest_version = split(split(objhttp.responsetext, chr(10))(1), " ")(2)
+    
+    ' check whether the latest version is our version
+    if constversionnumber <> latest_version then
+        cur_version_message = vbnewline & vbnewline & "you do not have the latest version of the add-in. the latest version is " & _
+                                latest_version & ". to update the add-in, go to cbs-ba-addin.com." & vbnewline & vbnewline
+    end if
+    
+after_version_check:
+    ' reset error checking
+    on error goto 0
+    
     msgbox "business analytics vba add-in version " & constversionnumber & vbnewline & _
-    "using solvertable 2016 from here: https://host.kelley.iu.edu/albrightbooks/free_downloads.htm" & vbnewline & vbnewline & _
-    "developed by: utkarsh patange, santiago balseiro, daniel guetta" & vbnewline & "contact: utkarsh.patange@columbia.edu", vbinformation
+    "using solvertable 2016 from https://host.kelley.iu.edu/albrightbooks/free_downloads.htm" & vbnewline & vbnewline & _
+    "developed by: utkarsh patange, santiago balseiro, daniel guetta" & vbnewline & "contact: info@cbs-ba-addin.com." & _
+    cur_version_message, vbinformation
 end sub
 
 
