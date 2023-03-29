@@ -3,7 +3,7 @@ option explicit
 ' the github action depends on the exact format of this line; do not change any
 ' part of this line other than the version number without first reading the
 ' github action file
-public const constversionnumber as string = "0.0.34"
+public const constversionnumber as string = "0.0.35"
 
 ' this constant is the absolute tolerance when making comparisons in mergesort
 public const constmergesort_tolerance as double = 0.0000000001
@@ -487,7 +487,7 @@ sub checkandfixlinks(obook as workbook)
     if isempty(vlinks) then exit sub
     for each vlink in vlinks
         'if vlink like "*" & thisworkbook.name then
-        if lcase(vlink) like "*cbs ba multiplatform add-in.xlam" then
+        if lcase(vlink) like "*cbs ba multiplatform add-in.xlam" or lcase(vlink) like "*cbs.ba.multiplatform.add-in.xlam" or lcase(vlink) like "*cbs_ba_multiplatform_add_in.xlam" then
             'we've found a link to our add-in, redirect it to
             'its current location. avoid prompts
             application.displayalerts = false
