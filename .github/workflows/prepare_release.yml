@@ -36,7 +36,7 @@ jobs:
     - name: Upload use manual to the GitHub release
       uses: softprops/action-gh-release@v1
       with:
-        files: "User manual/BA Add-In User Manual.pdf"
+        files: "User manual/BA_Add_In_User_Manual.pdf"
     - name: Upload Windows installer to GitHub release
       uses: softprops/action-gh-release@v1
       with:
