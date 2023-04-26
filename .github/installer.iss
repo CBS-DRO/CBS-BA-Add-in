@@ -36,11 +36,11 @@ Type: filesandordirs; Name: "{app}"
 [Files]
 Source: "{#GetEnv('GITHUB_WORKSPACE')}\.github\xlwings.exe"; DestDir: "{app}"; Flags: ignoreversion
 Source: "{#GetEnv('GITHUB_WORKSPACE')}\CBS BA Multiplatform add-in.xlam"; DestDir: "{app}\addins"; Flags: ignoreversion
-Source: "{#GetEnv('GITHUB_WORKSPACE')}\User manual\BA Add-In User Manual.pdf"; DestDir: "{app}"; Flags: ignoreversion
+Source: "{#GetEnv('GITHUB_WORKSPACE')}\User manual\BA_Add_In_User_Manual.pdf"; DestDir: "{app}"; Flags: ignoreversion
 Source: "{#GetEnv('GITHUB_WORKSPACE')}\.github\cbs_icon_grey.ico"; DestDir: "{app}"; Flags: ignoreversion
 
 [Icons]
-Name: "{group}\CBA BA Add-in User manual"; Filename: "{app}\BA Add-In User Manual.pdf"
+Name: "{group}\CBA BA Add-in User manual"; Filename: "{app}\BA_Add_In_User_Manual.pdf"
 
 [Code]
 procedure InitializeWizard;
