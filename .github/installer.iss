@@ -35,7 +35,7 @@ Type: filesandordirs; Name: "{app}"
 
 [Files]
 Source: "{#GetEnv('GITHUB_WORKSPACE')}\.github\xlwings.exe"; DestDir: "{app}"; Flags: ignoreversion
-Source: "{#GetEnv('GITHUB_WORKSPACE')}\CBS BA Multiplatform add-in.xlam"; DestDir: "{app}\addins"; Flags: ignoreversion
+Source: "{#GetEnv('GITHUB_WORKSPACE')}\CBS_BA_Multiplatform_add_in.xlam"; DestDir: "{app}\addins"; Flags: ignoreversion
 Source: "{#GetEnv('GITHUB_WORKSPACE')}\User manual\BA_Add_In_User_Manual.pdf"; DestDir: "{app}"; Flags: ignoreversion
 Source: "{#GetEnv('GITHUB_WORKSPACE')}\.github\cbs_icon_grey.ico"; DestDir: "{app}"; Flags: ignoreversion
 
