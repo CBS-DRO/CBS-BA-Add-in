@@ -530,7 +530,7 @@ sub showusermanual()
     ' check whether we have a user manual
     dim user_manual_path as string
     
-    user_manual_path = environ("localappdata") & "\cbs_ba_addin\ba add-in user manual.pdf"
+    user_manual_path = environ("localappdata") & "\cbs_ba_addin\ba_add_in_user_manual.pdf"
     
     if dir(user_manual_path) <> "" then
         opennativeapp (user_manual_path)
