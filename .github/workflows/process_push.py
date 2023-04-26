@@ -58,9 +58,10 @@ if __name__ == '__main__':
     VBA_CODE_FOLDER = './~VBA Code'
 
     # Define the expected location and names of the files
-    expected_files = {'add-in'       : './CBS BA Multiplatform add-in.xlam',
-                      'manual_pdf'   : './User manual/BA Add-In User Manual.pdf',
-                      'manual_latex' : './User manual/BA Add-In User Manual.tex'}
+    expected_files = {'add-in'       : './CBS_BA_Multiplatform_add_in.xlam',
+                      'manual_pdf'   : './User manual/BA_Add_In_User_Manual.pdf',
+                      'manual_latex' : './User manual/BA_Add_In_User_Manual.tex',
+                      'html_page'    : './docs/index.html'}
     
     # Create a list to store errors
     errors = []
@@ -203,7 +204,26 @@ if __name__ == '__main__':
                                 and (vba_version != manual_version) ):
         errors.append(f'  - The version numbers in the VBA file ({vba_version}) and in the user manual '
                                                     f'LaTeX file ({manual_version}) do not match. Please fix.')
-
+    
+    # Edit the version number on the HTML page
+    try:
+        # Read the HTML page
+        with open(expected_files['html_page']) as f:
+            html_file = f.readlines()
+        
+        # Find the line with the version
+        version_line = [i for i, j in enumerate(html_file) if '<h2>Latest Version:' in j]
+        assert len(version_line) == 1
+        version_line = version_line[0]
+        
+        # Edit that line with the version
+        html_file[version_line] = f'<h2>Latest Version: {vba_version}</h2>\n'
+        
+        with open(expected_files['html_page'], 'w') as f:
+            f.writelines(html_file)
+    except Exception as e:
+        errors.append('  - Error updating the version number in the HTML file; the error was {str(e)}')
+        
     # ----------------------------
     # -  Update the readme file  -
     # ----------------------------
