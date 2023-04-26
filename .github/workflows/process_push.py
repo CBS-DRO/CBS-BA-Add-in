@@ -58,7 +58,7 @@ if __name__ == '__main__':
     VBA_CODE_FOLDER = './~VBA Code'
 
     # Define the expected location and names of the files
-    expected_files = {'add-in'       : './CBS BA Multiplatform add-in.xlam',
+    expected_files = {'add-in'       : './CBS BA_Multiplatform_add_in.xlam',
                       'manual_pdf'   : './User manual/BA Add-In User Manual.pdf',
                       'manual_latex' : './User manual/BA Add-In User Manual.tex'}
     

@@ -32,7 +32,7 @@ jobs:
     - name: Upload xlam to the GitHub release
       uses: softprops/action-gh-release@v1
       with:
-        files: "CBS BA Multiplatform add-in.xlam"
+        files: "CBS_BA_Multiplatform_add_in.xlam"
     - name: Upload use manual to the GitHub release
       uses: softprops/action-gh-release@v1
       with:
