@@ -1028,6 +1028,38 @@ poissonsim_err:
     poissonsim = "fatal error: " & err.description
 end function
 
+public function triangularsim(min as double, mode as double, max as double)
+
+    ' min = minimum value
+
+    ' mode = most likely value
+
+    ' max =  maximum value
+
+    on error goto triangular_err
+
+    dim u as double, f as double
+
+    if mode < min or max < min or max < mode then
+        triangularsim = "parameters should be ordered as min < mode < max"
+        exit function
+    end if
+
+    u = rnd() ' random number between 0 and 1
+    f = (mode - min) / (max - min) ' fraction of the distribution's range where the mode occurs
+
+    if u <= f then
+        triangularsim = min + sqr(u * (max - min) * (mode - min))
+    else
+        triangularsim = max - sqr((1 - u) * (max - min) * (max - mode))
+    end if
+
+    exit function
+
+triangular_err:
+    triangularsim = "fatal error: " & err.description
+end function
+
 private function logfactorial(k as long)
     dim logtable() as variant
     logtable = array(0, 0.693147181, 1.791759469, 3.17805383, 4.787491743, _
@@ -1098,6 +1130,7 @@ public sub registerall()
     util.functiondescription funcname, funcdesc, funccat, argdesc
     
     'normalsim(mu as long, sigma as double)
+    redim argdesc(1 to 2)
     funcname = "normalsim"
     funcdesc = "generate a random number according to the normal distribution"
     argdesc(1) = "mean of the distribution"
@@ -1105,10 +1138,19 @@ public sub registerall()
     util.functiondescription funcname, funcdesc, funccat, argdesc
     
     'expsim(rate as double)
+    redim argdesc(1 to 1)
     funcname = "expsim"
     funcdesc = "generate a random number according to the exponential distribution"
-    redim argdesc(1 to 1)
     argdesc(1) = "rate of the exponential distribution"
+    util.functiondescription funcname, funcdesc, funccat, argdesc
+    
+    'triangularsim(min as double, mode as double, max as double)
+    redim argdesc(1 to 3)
+    funcname = "triangularsim"
+    funcdesc = "generate a random number according to the triangular distribution"
+    argdesc(1) = "minimum value of the triangular distribution"
+    argdesc(2) = "mode value of the triangular distribution"
+    argdesc(3) = "maximum value of the triangular distribution"
     util.functiondescription funcname, funcdesc, funccat, argdesc
     
     registermcsim
