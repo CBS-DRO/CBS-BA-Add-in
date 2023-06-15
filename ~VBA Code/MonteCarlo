@@ -1185,6 +1185,13 @@ public sub registerall()
     argdesc(2) = "maximum value of the uniform distribution"
     util.functiondescription funcname, funcdesc, funccat, argdesc
     
+    'poissonsim(mean as double)
+    redim argdesc(1 to 1)
+    funcname = "poissonsim"
+    funcdesc = "generate a random number according to the poisson distribution"
+    argdesc(1) = "mean of the poisson distribution"
+    util.functiondescription funcname, funcdesc, funccat, argdesc
+    
     registermcsim
 end sub
 
