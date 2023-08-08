@@ -11,7 +11,7 @@ jobs:
     env:
       PROJECT: CBS_BA_addin
       APP_ID: 7d4c8374-9811-4c29-900a-a72c423b6a9a
-      APP_PUBLISHER: Columbia Business School
+      APP_PUBLISHER: Dynamic Analytics LLC
     if: github.event_name == 'release'
     runs-on: windows-2022
     steps:
@@ -29,12 +29,12 @@ jobs:
       run: sed -i "s/dev/${{ github.event.release.tag_name }}/" .github/installer.iss
     - name: Create Installer
       run: iscc .github/installer.iss
-    - name: Instal the sign tool
+    - name: Install the sign tool
       shell: bash
       run: dotnet tool install --global AzureSignTool 
     - name: Sign the installer
       shell: bash
-      run: AzureSignTool sign -kvu "${{ secrets.AZURE_KEY_VAULT_URI }}" -kvi "${{ secrets.AZURE_CLIENT_ID }}" -kvt "${{ secrets.AZURE_TENANT_ID }}" -kvs "${{ secrets.AZURE_CLIENT_SECRET }}" -kvc ${{ secrets.AZURE_CERT_NAME }} -tr http://timestamp.digicert.com -v .github/Output/${{ env.PROJECT }}-${{ github.event.release.tag_name }}.exe
+      run: AzureSignTool sign -kvu "${{ secrets.AZURE_KEY_VAULT_URI }}" -kvi "${{ secrets.AZURE_CLIENT_ID }}" -kvt "${{ secrets.AZURE_TENANT_ID }}" -kvs "${{ secrets.AZURE_CLIENT_SECRET }}" -kvc ${{ secrets.AZURE_CERT_NAME }} -tr http://timestamp.digicert.com -v .github/Output/${{ env.PROJECT }}.exe
     - name: Upload xlam to the GitHub release
       uses: softprops/action-gh-release@v1
       with:
@@ -46,4 +46,4 @@ jobs:
     - name: Upload Windows installer to GitHub release
       uses: softprops/action-gh-release@v1
       with:
-        files: .github/Output/${{ env.PROJECT }}-${{ github.event.release.tag_name }}.exe
+        files: .github/Output/${{ env.PROJECT }}.exe

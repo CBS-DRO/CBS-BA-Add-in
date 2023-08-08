@@ -99,31 +99,13 @@
         
         <h2 id="windows_install">Windows Installation</h2>
         
-        <ol>
-            <li>Make sure Excel is not running.</li>
-            <li>Go to <code>C:\Program Files\</code> and create a new folder called <code>cbs_ba_multiplatform</code> if one doesn't already exits (if the folder exists and you are updating the add-in, delete the file in that folder).</li>
-            <li>Download the following file: <a href="https://github.com/CBS-DRO/CBS-BA-Add-in/releases/latest/download/CBS_BA_Multiplatform_add_in.xlam"><code>CBS_BA_Multiplatform_add_in.xlam</code></a> and move it to the newly created folder.</li>
-            <li>By default, the add-in file may be blocked by Windows since it is downloaded from the internet. If you don't unblock it, the add-in may not work properly. To unblock the add-in:
-                <ul>
-                    <li>Open <b>Microsoft Windows Explorer</b> to locate and right-click the downloaded file, choose <b>Properties</b> from the context menu.</li>
-                    <li>Click the <b>Unblock</b> button in the lower right-hand corner of the resulting dialog.</li>
-                    <li>Click <b>OK</b> or <b>Apply</b>.</li>
-                </ul>
-                
-                <center><img src="img/win_unblock.png"></center>
-                
-                Note: If the Unblock button is not present, the file is not blocked and this step is not needed.
-            </li>
-            <li>Open Excel and then any workbook in Excel (not the add-in).</li>
-            <li>Go to File → Options → Add-Ins.</li>
-            <li>In the Manage window, select Excel Add-ins → Go. <center><img src="img/win_addin_go.png"></center> </li>
-            <li>In the Add-Ins available dialog, click Browse and select the XLAM file you downloaded. For complete functionality, also select the Solver Add-in in the dialog. <center><img src="img/win_addin_list.png"></center></li>
-            <li>Click OK.</li>
-        </ol>
-        <p>
-            The add-in is now installed. This can be verified by noting that a new ribbon appears in the Toolbox.
+        <p>To install the add-in on Windows, download <a href="https://github.com/CBS-DRO/CBS-BA-Add-in/releases/latest/download/CBS_BA_addin.exe">the add-in installer</a> and run it.</p>
+        
+        <p>That's it! The add-in is now installed. This can be verified by noting that a new ribbon appears in the Toolbox.
             <center><img src="img/win_addin_ribbon.jpg" style="width:100%"></center>
         </p>
+
+        <p>If you have a corporate computer that doesn't allow you to run a .exe file, see <a href="no_exe_install.html">this page</a>.
 
         <div class="divider div-transparent"></div>
         
@@ -163,14 +145,13 @@
         <h2 id="troubleshooting">Troubleshooting</h2>
         
         <ul>
-            <li> When installing on Windows, make sure to unblock the add-in. If the downloaded file is not unblocked, the add-in may not function properly. Detailed instructions for unblocking are above in the Windows Installation section.</li>
             <li> When downloading a file which uses the add-in from another computer (e.g., practice problem solution files from Courseworks), links to the add-in functions may be broken. To fix them, go to <code>CBS BA Add-in</code in the ribbon, and click <code>Fix Links to Add-In</code>.</li>
-            <li> This add-in does not work well with the old (C++/Windows only) BA Excel add-in. If the old add-in is already installed, make sure you disable it and then follow the installation instruction above.</li>
-            <li>If you get an message saying "This workbook is being referenced by another workbook and cannot be closed" when starting Excel, please note that this is a harmless warning, albeit annoying. To fix this, disable the add-in, restart Excel, and enable the add-in again. The Add-ins available dialog can be used to enable and disable add-ins. Please see installation instructions for Windows/Mac above for how to open this dialog.</li>
+            <!-- <li>If you get an message saying "This workbook is being referenced by another workbook and cannot be closed" when starting Excel, please note that this is a harmless warning, albeit annoying. To fix this, disable the add-in, restart Excel, and enable the add-in again. The Add-ins available dialog can be used to enable and disable add-ins. Please see installation instructions for Windows/Mac above for how to open this dialog.</li> -->
             <li>If you get an error saying "Compile Error: Can't find project or library", this is because the add-in uses Solver add-in internally, and some versions of Excel complain if Solver is not enabled at startup. To fix this, open the add-in available dialog by following the instructions for Windows/Mac above and enable the Solver add-in. Then restart Excel. The error should now be gone.</li>
             <li>Normally, you can get guidance for Excel functions by typing the function in a cell and clicking on the formula button (or typing Shift+F3). This, however, does not work well with add-in functions in Excel for Mac. To get proper guidance for add-in functions, go to Formulas -> Insert functions and type the name of the function in the search box of the Formula Builder dialog that opens. When you select the function from the search results, you will receive help on the function and its arguments.</li>
             <li>Always make sure to keep the add-in updated to the latest version. To check the installed version, type Ctrl+Shift+V when Excel is open. You can also go to "CBS BA Add-in" -> "Version Info". If your version is older than the one on this website, you can download the add-in file from here and follow the installation instructions to update to the latest version.</li>
             <li>Installing the add-in requires a version of Excel that is activated. If you are not able to install it on your Excel, try to reinstall Excel - reach out to ITG if you need help.</li>
+            <li>This add-in does not work well with the old (C++/Windows only) BA Excel add-in. If the old add-in is already installed, make sure you disable it and then follow the installation instructions above.</li>
         </ul>
                 
 	</div>
