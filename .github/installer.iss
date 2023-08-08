@@ -1,7 +1,7 @@
 #define MyAppName "name_placeholder"
 #define MyAppVersion "dev"
 #define MyAppPublisher "publisher_placeholder"
-#define MyAppURL "https://www.xlwings.org"
+#define MyAppURL "https://cbs-ba-addin.com/"
 
 [Setup]
 ; NOTE: The value of AppId uniquely identifies this application.
@@ -19,7 +19,7 @@ DefaultDirName={localappdata}\{#MyAppName}
 DisableDirPage=yes
 DefaultGroupName="CBS BA Addin"
 DisableProgramGroupPage=yes
-OutputBaseFilename={#MyAppName}-{#MyAppVersion}
+OutputBaseFilename={#MyAppName}
 Compression=lzma
 SolidCompression=yes
 PrivilegesRequired=none
