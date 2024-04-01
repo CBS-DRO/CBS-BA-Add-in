@@ -18,6 +18,25 @@ jobs:
     - run: echo "Starting"
     - name: Check out repository code
       uses: actions/checkout@v3
+    - name: Clone the AzureSignTool repo (I haven't figured out how to sign macros using the AzureSignTool below, it fails with error 800B0003)
+      shell: bash
+      run: git clone https://github.com/vcsjones/AzureSignTool.git
+    - name: Sign the xlsm file
+      run: |
+        echo "Installing files needed to sign excel macros"
+        .github\macro_signing_files\vcredist_x86.exe /install /passive /norestart
+        Regsvr32 .github\macro_signing_files\msosip.dll
+        Regsvr32 .github\macro_signing_files\msosipx.dll
+        echo "Installation steps done"
+        cp CBS_BA_Multiplatform_add_in.xlam "AzureSignTool/src/AzureSignTool/CBS_BA_Multiplatform_add_in.xlam"
+        cd AzureSignTool/src/AzureSignTool
+        dotnet run sign "CBS_BA_Multiplatform_add_in.xlam" -kvu "${{ secrets.AZURE_KEY_VAULT_URI }}" -kvi "${{ secrets.AZURE_CLIENT_ID }}" -kvt "${{ secrets.AZURE_TENANT_ID }}" -kvs "${{ secrets.AZURE_CLIENT_SECRET }}" -kvc "${{ secrets.AZURE_CERT_NAME }}" -tr "http://timestamp.digicert.com" -r win-x86 --verbose
+        dotnet run sign "CBS_BA_Multiplatform_add_in.xlam" -kvu "${{ secrets.AZURE_KEY_VAULT_URI }}" -kvi "${{ secrets.AZURE_CLIENT_ID }}" -kvt "${{ secrets.AZURE_TENANT_ID }}" -kvs "${{ secrets.AZURE_CLIENT_SECRET }}" -kvc "${{ secrets.AZURE_CERT_NAME }}" -tr "http://timestamp.digicert.com" -r win-x86 --verbose
+        dotnet run sign "CBS_BA_Multiplatform_add_in.xlam" -kvu "${{ secrets.AZURE_KEY_VAULT_URI }}" -kvi "${{ secrets.AZURE_CLIENT_ID }}" -kvt "${{ secrets.AZURE_TENANT_ID }}" -kvs "${{ secrets.AZURE_CLIENT_SECRET }}" -kvc "${{ secrets.AZURE_CERT_NAME }}" -tr "http://timestamp.digicert.com" -r win-x86 --verbose
+    - name: copy the signed xltm file back
+      shell: bash
+      run: |
+        cp "AzureSignTool/src/AzureSignTool/CBS_BA_Multiplatform_add_in.xlam" "CBS_BA_Multiplatform_add_in.xlam"
     - name: Replace placeholders in installer.iss
       shell: bash
       run: |
