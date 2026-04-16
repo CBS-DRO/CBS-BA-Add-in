@@ -105,7 +105,7 @@
             <center><img src="img/win_addin_ribbon.jpg" style="width:100%"></center>
         </p>
 
-        <p>If you have a corporate computer that doesn't allow you to run a .exe file, see <a href="no_exe_install.html">this page</a>.
+        <p>If you have a corporate computer that doesn't allow you to run a .exe file, see <a href="no_exe_install.html">this page</a>. If you get an error when you try and run the Monte Carlo Simulation tool in the add-in, see the first troubleshooting step at the bottom of this page.</p>
 
         <div class="divider div-transparent"></div>
         
@@ -145,6 +145,16 @@
         <h2 id="troubleshooting">Troubleshooting</h2>
         
         <ul>
+            <li>
+                A small percentage of Windows users can get errors when clicking on the "Monte Carlo Simulation" button in the add-in. If you get an error when you click on that button, go through the following steps:
+                <ol>
+                    <li>Go to File in the ribbon bar, then click Options at the very bottom on the left.</li>
+                    <li>In the Excel Options dialog, click Trust Center on the left, then click Trust Center Settings</li>
+                    <li>In the Trust Center dialog, click "ActiveX Settings". Select the second option ("Prompt me before enabling Unsafe for Initialization (UFI) controls...")</li>
+                    <li>Click "OK" twice to close the Trust Center dialog and the Excel Options dialog</li>
+                    <li>Restart Excel</li>
+                </ol>
+            </li>
             <li> When downloading a file which uses the add-in from another computer (e.g., practice problem solution files from Courseworks), links to the add-in functions may be broken. To fix them, go to <code>CBS BA Add-in</code in the ribbon, and click <code>Fix Links to Add-In</code>.</li>
             <!-- <li>If you get an message saying "This workbook is being referenced by another workbook and cannot be closed" when starting Excel, please note that this is a harmless warning, albeit annoying. To fix this, disable the add-in, restart Excel, and enable the add-in again. The Add-ins available dialog can be used to enable and disable add-ins. Please see installation instructions for Windows/Mac above for how to open this dialog.</li> -->
             <li>If you get an error saying "Compile Error: Can't find project or library", this is because the add-in uses Solver add-in internally, and some versions of Excel complain if Solver is not enabled at startup. To fix this, open the add-in available dialog by following the instructions for Windows/Mac above and enable the Solver add-in. Then restart Excel. The error should now be gone.</li>
